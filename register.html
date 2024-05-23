@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Page</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-Dtkz0NJr0tNIDYNyXXWzj9/C1AXFbjRlDsEiRgDip0fYr4NyXOnkiU+Dxf32/a+49yMiNU3x27w9C09GQ88M0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #register-container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+        }
+
+        h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            position: relative; /* Ensure proper positioning of the eye icon */
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        p {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        /* Popup Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content {
+            text-align: center;
+        }
+
+        .modal-content p {
+            margin-bottom: 10px;
+        }
+
+        .modal-content button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #45a049;
+        }
+
+        /* Eye icon styles */
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%; /* Center vertically */
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: black; /* Change the color to black */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="register-container">
+        <h2>Register</h2>
+        <form id="register-form">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <div style="position:relative;">
+                <input type="password" id="password" name="password" required>
+                <span class="password-toggle" onclick="togglePasswordVisibility('password')">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                </span>
+            </div>
+            <label for="confirmPassword">Confirm Password:</label>
+            <div style="position:relative;">
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <span class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                </span>
+            </div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email">
+            <label for="age">Age:</label>
+            <input type="number" id="age" name="age">
+            <label for="gender">Gender:</label>
+            <input type="text" id="gender" name="gender">
+            <label for="mobile_number">Mobile Number:</label>
+            <input type="text" id="mobile_number" name="mobile_number">
+            <input type="submit" value="Register">
+        </form>
+        <p>Already have an account? <a href="/">Login</a></p>
+    </div>
+
+    <!-- Popup Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <p>Registration successful!</p>
+            <button id="loginBtn">Login Page</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript to toggle password visibility
+        function togglePasswordVisibility(inputId) {
+            var input = document.getElementById(inputId);
+            var icon = input.parentElement.querySelector('i');
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = "password";
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById("register-form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get form data
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirmPassword").value;
+            var email = document.getElementById("email").value;
+            var age = document.getElementById("age").value;
+            var gender = document.getElementById("gender").value;
+            var mobile_number = document.getElementById("mobile_number").value;
+
+            // Check if the username contains any spaces
+            if (username.includes(" ")) {
+                alert("Username cannot contain spaces.");
+                return; // Stop further execution
+            }
+
+            // Check if passwords match
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return;
+            }
+
+            // Construct registration payload as JSON
+            var payload = {
+                username: username,
+                password: password,
+                email: email,
+                age: age ? parseInt(age) : null,
+                gender: gender,
+                mobile_number: mobile_number
+            };
+
+            // Send register request to server
+            fetch("/register/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to register");
+                    }
+                    // Display registration success modal
+                    document.getElementById("myModal").style.display = "block";
+                })
+                .catch(error => {
+                    console.error("Registration error:", error.message);
+                    alert("Registration failed. Please try again.");
+                });
+        });
+
+        // Redirect to login page when user clicks on 'Login' button
+        document.getElementById("loginBtn").addEventListener("click", function () {
+            window.location.href = "/";
+        });
+    </script>
+
+</body>
+
+</html>

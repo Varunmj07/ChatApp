@@ -1,0 +1,41 @@
+<!-- messages.html (Messages Page) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+</head>
+<body>
+    <h2>Send Message</h2>
+    <form action="/send_message/" method="post">
+        <label for="sender">Sender:</label><br>
+        <input type="text" id="sender" name="sender" value="Logged in user" disabled><br>
+        <label for="receiver">Receiver:</label><br>
+        <input type="text" id="receiver" name="receiver"><br>
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message"></textarea><br><br>
+        <input type="submit" value="Send">
+    </form>
+
+    <h2>Received Messages</h2>
+    <div id="received-messages">
+        <!-- Messages will be displayed here -->
+    </div>
+    
+    <script>
+        // JavaScript code to fetch and display received messages
+        fetch('/messages/')
+            .then(response => response.json())
+            .then(messages => {
+                const receivedMessagesDiv = document.getElementById('received-messages');
+                messages.forEach(message => {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.innerHTML = `<strong>${message.sender}:</strong> ${message.message}`;
+                    receivedMessagesDiv.appendChild(messageDiv);
+                });
+            })
+            .catch(error => console.error('Error fetching messages:', error));
+    </script>
+</body>
+</html>

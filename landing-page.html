@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        integrity="sha512-JR2v2lMdr4LPkTy4y7vqsp/qpVWoHz61Ka3iwoVYpSxbgGUUxgcgMSgXkhuJO+/cVRGlZf3mSw5ClpEVrTnLkQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Fallback or default styling in case styles.css fails to load */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #sidebar {
+            width: 25%;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
+
+        .contact {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .contact:hover {
+            background-color: #f5f5f5;
+        }
+
+        .contact.highlight {
+            background-color: #e0e0e0;
+            /* Highlight color for unread messages */
+        }
+
+        .contact.highlight .contact-name,
+        .contact.highlight .unread-count {
+            color: green;
+            /* Green color for highlighted chat names and unread message counts */
+        }
+
+        .contact-name {
+            display: inline-block;
+        }
+
+        .unread-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: green;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        #chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            /* White background for the chat section */
+            position: relative;
+            /* Position relative to contain the absolute positioned divider */
+        }
+
+        #chat-divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            /* Adjust the width of the divider */
+            background-color: #ddd;
+            /* Color of the divider */
+            left: 25%;
+            /* Position the divider to the right of the sidebar */
+            z-index: 1;
+            /* Ensure the divider is above other content */
+        }
+
+        #sidebar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 1px;
+            /* Adjust the width of the divider */
+            background-color: #999;
+            /* Color of the divider */
+            z-index: 2;
+            /* Ensure the divider is above other content */
+        }
+
+        #chat-header {
+            padding: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
+
+        /* Chat input initially hidden */
+        #chat-input {
+            display: none;
+        }
+
+        #message-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #send-button {
+            padding: 8px 15px;
+            margin-left: 10px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #45a049;
+        }
+
+        .sent {
+            text-align: right;
+        }
+
+        .received {
+            text-align: left;
+        }
+
+        .sent-message {
+            background-color: #4caf50;
+            /* Green background for sent messages */
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .received-message {
+            background-color: #ffffff34;
+            /* White background for received messages */
+            padding: 5px 10px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        #welcome-message {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            /* Ensure the welcome message takes up the full height of the chat section */
+        }
+
+        #welcome-message>div {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
+            /* Green color */
+            margin-bottom: 10px;
+            /* Add some space between the "Simple Chat" text and the username */
+        }
+
+        #logged-in-user {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4d19a2;
+            /* Blue color */
+        }
+
+        #chat-header {
+            font-weight: bold;
+            color: #4caf50;
+            /* Green color */
+            font-size: 28px;
+            /* Increased font size */
+        }
+
+        #all-chats {
+            font-weight: bold;
+            color: #4d19a2;
+            /* Green color */
+            font-size: 20px;
+            /* Increased font size */
+        }
+
+        /* Profile dropdown */
+        #profile-dropdown {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            display: none;
+            background-color: #4910e5;
+            border: 1px solid #bb0a0a;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+            /* Ensure dropdown is above other content */
+        }
+
+        .profile-button {
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .profile-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .profile-dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .profile-dropdown-item:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="sidebar">
+            <!-- Chat list (contacts) -->
+            <div class="contact" id="all-chats">All Chats</div>
+            <div id="users-list"></div> <!-- Container for displaying users -->
+        </div>
+        <div id="chat">
+            <!-- Chat header -->
+            <div id="chat-header">SimpleChat</div>
+            <!-- Chat messages -->
+            <div id="chat-messages">
+                <!-- Messages will be displayed here -->
+            </div>
+            <!-- Chat input -->
+            <div id="chat-input">
+                <input type="text" id="message-input" placeholder="Type a message...">
+                <button id="send-button">Send</button>
+            </div>
+            <!-- Welcome message -->
+            <div id="welcome-message">Welcome</div>
+        </div>
+    </div>
+
+    <!-- Profile dropdown -->
+    <div id="profile-dropdown">
+        <div class="profile-button">
+            <i class="fas fa-user"></i> <!-- Person icon -->
+        </div>
+        <div class="profile-dropdown-item">Profile</div>
+        <div class="profile-dropdown-item">Logout</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Variable to store the logged-in username
+            let loggedInUser = "";
+            // Variable to store the last selected contact
+            let lastSelectedContact = "";
+            // Initialize an empty array to store messages
+            let messages = [];
+            // Initialize an object to track unread messages
+            let unreadMessages = {};
+
+            // Fetch the logged-in user's information when the page loads
+            fetchLoggedInUser();
+
+            // Function to fetch the logged-in user's information
+            function fetchLoggedInUser() {
+                fetch("/api/logged_in_user/")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to fetch logged-in user");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Save the logged-in user's username
+                        loggedInUser = data.username;
+                        // Display the welcome message with the logged-in user's name
+                        displayWelcomeMessage(loggedInUser);
+                        // Fetch users from the backend
+                        fetchUsers();
+                        // Load stored messages from local storage
+                        loadStoredMessages();
+                        // Start polling for new messages
+                        setInterval(fetchNewMessages, 5000); // Adjust the interval as needed (e.g., every 5 seconds)
+                    })
+                    .catch(error => {
+                        console.error("Error fetching logged-in user:", error.message);
+                    });
+            }
+
+            // Function to display the welcome message with the logged-in user's name
+            function displayWelcomeMessage(username) {
+                const welcomeMessage = document.getElementById("welcome-message");
+                welcomeMessage.innerHTML = `
+                <div>Welcome to Simple Chat</div>
+                <div id="logged-in-user">Logged in as: ${username}</div>
+                `;
+            }
+
+            // Function to fetch users from the backend
+            function fetchUsers() {
+                fetch("/api/users/")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to fetch users");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Display users in the sidebar
+                        const usersList = document.getElementById("users-list");
+                        // Exclude the logged-in user
+                        data.users.forEach(user => {
+                            if (user.trim() !== "" && user.trim() !== loggedInUser) {
+                                const userElement = document.createElement("div");
+                                userElement.classList.add("contact");
+                                userElement.innerHTML = `<span class="contact-name">${user}</span>`;
+                                // Add unread count element
+                                const unreadCountElement = document.createElement("div");
+                                unreadCountElement.classList.add("unread-count");
+                                unreadCountElement.textContent = unreadMessages[user] || "";
+                                userElement.appendChild(unreadCountElement);
+                                // Add click event listener to each contact element
+                                userElement.addEventListener("click", function () {
+                                    const selectedContact = user;
+                                    const chatHeader = document.getElementById("chat-header");
+                                    chatHeader.textContent = selectedContact;
+                                    // Show messages for the selected contact
+                                    showMessages(selectedContact);
+                                    // Show chat input field and send button
+                                    const chatInput = document.getElementById("chat-input");
+                                    chatInput.style.display = "flex";
+                                    // Hide the welcome message
+                                    const welcomeMessage = document.getElementById("welcome-message");
+                                    welcomeMessage.style.display = "none";
+                                    // Store the last selected contact as a combination of sender and receiver names
+                                    lastSelectedContact = `${loggedInUser}-${selectedContact}`;
+                                    // Mark messages as read
+                                    markMessagesAsRead(selectedContact);
+                                });
+                                usersList.appendChild(userElement);
+                            }
+                        });
+                        // If lastSelectedContact is not empty, reload the last selected contact
+                        if (lastSelectedContact !== "") {
+                            reloadLastSelectedContact();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching users:", error.message);
+                    });
+            }
+
+            // Load stored messages from local storage
+            function loadStoredMessages() {
+                const storedMessages = localStorage.getItem("messages");
+                if (storedMessages) {
+                    messages = JSON.parse(storedMessages);
+                }
+            }
+
+            // Fetch new messages periodically
+            function fetchNewMessages() {
+                fetch("/api/logged_in_user/")
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to fetch logged-in user");
+                        }
+                        return response.json();
+                    })
+                    .then(userData => {
+                        if (lastSelectedContact) {
+                            // Clear existing messages
+                            clearChatMessages();
+
+                            // Split the lastSelectedContact into sender and receiver
+                            const [sender, receiver] = lastSelectedContact.split('-');
+
+                            // Fetch all messages between sender and receiver
+                            fetch(`/messages/${sender}/${receiver}/`)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("Failed to fetch new messages");
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    // Display new messages
+                                    data.forEach(message => {
+                                        displayMessage(message);
+                                    });
+                                    // Update unread messages count
+                                    updateUnreadMessages(data, receiver);
+                                })
+                                .catch(error => {
+                                    console.error("Error fetching new messages:", error.message);
+                                });
+                        } else {
+                            // Fetch new messages for the logged-in user
+                            fetch(`/messages/${userData.username}/`)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error("Failed to fetch new messages");
+                                    }
+                                    return response.json();
+                                })
+                                .then(data => {
+                                    data.forEach(message => {
+                                        const contact = message.sender === userData.username ? message.receiver : message.sender;
+                                        if (!unreadMessages[contact]) {
+                                            unreadMessages[contact] = 0;
+                                        }
+                                        unreadMessages[contact]++;
+                                        updateUnreadMessages([], contact);
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error("Error fetching new messages:", error.message);
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching logged-in user:", error.message);
+                    });
+            }
+
+            // Show messages for the selected contact
+            function showMessages(contact) {
+                console.log("Fetching messages for:", contact);
+
+                // Split the contact into sender and receiver
+                const [receiver] = contact.split('-');
+                const sender = loggedInUser; // Use the current logged-in user as the sender
+
+                // Fetch messages between sender and receiver
+                fetch(`/messages/${sender}/${receiver}/`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to fetch messages");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("Received messages:", data);
+                        // Display messages in the chat area
+                        data.forEach(message => {
+                            console.log("Displaying message:", message);
+                            displayMessage(message);
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error fetching messages:", error.message);
+                    });
+            }
+
+            // Function to clear all messages in the chat area
+            function clearChatMessages() {
+                const chatMessages = document.getElementById("chat-messages");
+                chatMessages.innerHTML = ""; // Clear the chat area
+            }
+
+            // Function to display a message in the chat area
+            function displayMessage(message) {
+                const chatMessages = document.getElementById("chat-messages");
+
+                // Create a unique identifier for the message
+                const messageId = `message-${message.id}`;
+
+                // Check if the message is already displayed
+                const existingMessage = document.getElementById(messageId);
+                if (!existingMessage) {
+                    // Create a new message element
+                    const messageElement = document.createElement("div");
+                    messageElement.classList.add("message");
+                    messageElement.dataset.messageId = messageId;
+
+                    // Check if the message is sent or received
+                    if (message.sender === loggedInUser) {
+                        messageElement.classList.add("sent");
+                        messageElement.innerHTML = `<div class="sent-message">${message.message}</div>`;
+                    } else {
+                        messageElement.classList.add("received");
+                        messageElement.innerHTML = `<div class="received-message">${message.message}</div>`;
+                    }
+
+                    // Append the message element to the chat area
+                    chatMessages.appendChild(messageElement);
+                }
+            }
+
+            // Function to store the message locally
+            function storeMessageLocally(message) {
+                messages.push(message);
+                localStorage.setItem("messages", JSON.stringify(messages));
+            }
+
+            // Add event listener to the send button
+            const sendButton = document.getElementById("send-button");
+            sendButton.addEventListener("click", sendMessageFromInput);
+
+            // Add event listener to the message input field for the "keypress" event
+            const messageInput = document.getElementById("message-input");
+            messageInput.addEventListener("keypress", function (event) {
+                // Check if the pressed key is Enter (key code 13)
+                if (event.key === "Enter") {
+                    // Prevent the default behavior (form submission or newline in textarea)
+                    event.preventDefault();
+                    // Send message
+                    sendMessageFromInput();
+                }
+            });
+
+            // Function to send message from input
+            function sendMessageFromInput() {
+                const selectedContact = document.getElementById("chat-header").textContent;
+                const messageInput = document.getElementById("message-input");
+                const message = messageInput.value.trim();
+                if (message !== "") {
+                    // Create message object with the logged-in username as sender and selectedContact as receiver
+                    const messageData = {
+                        sender: loggedInUser,
+                        receiver: selectedContact,
+                        message: message
+                    };
+                    // Send message to the backend using the sendMessage function
+                    sendMessage(messageData);
+                    // Store the message locally
+                    storeMessageLocally(messageData);
+                    // Clear message input field
+                    messageInput.value = "";
+                    // Display the sent message in the chat area
+                    displayMessage(messageData);
+                }
+            }
+
+            // Function to send message to the backend
+            function sendMessage(message) {
+                fetch("/send_message/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(message)
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to send message");
+                        }
+                        console.log("Message sent successfully");
+                    })
+                    .catch(error => {
+                        console.error("Error sending message:", error.message);
+                    });
+            }
+
+            // Function to update unread messages count
+            function updateUnreadMessages(data, contact) {
+                const unreadCount = data.filter(msg => msg.receiver === loggedInUser && !msg.read).length;
+                unreadMessages[contact] = unreadCount;
+                const contactElements = document.getElementsByClassName("contact");
+                for (let i = 0; i < contactElements.length; i++) {
+                    if (contactElements[i].querySelector(".contact-name").textContent === contact) {
+                        const unreadCountElement = contactElements[i].querySelector(".unread-count");
+                        unreadCountElement.textContent = unreadCount || "";
+                        if (unreadCount > 0) {
+                            contactElements[i].classList.add("highlight");
+                        } else {
+                            contactElements[i].classList.remove("highlight");
+                        }
+                    }
+                }
+            }
+
+            // Function to mark messages as read
+            function markMessagesAsRead(contact) {
+                fetch(`/messages/${loggedInUser}/${contact}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ read: true })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Failed to mark messages as read");
+                        }
+                        console.log("Messages marked as read");
+                        // Update unread messages count
+                        updateUnreadMessages([], contact);
+                    })
+                    .catch(error => {
+                        console.error("Error marking messages as read:", error.message);
+                    });
+            }
+
+            // Profile dropdown functionality
+            const profileDropdown = document.getElementById("profile-dropdown");
+            const profileButton = document.querySelector(".profile-button");
+
+            // Show/hide profile dropdown on click
+            profileButton.addEventListener("click", function () {
+                profileDropdown.style.display = profileDropdown.style.display === "block" ? "none" : "block";
+            });
+
+            // Close profile dropdown if clicked outside
+            document.addEventListener("click", function (event) {
+                if (!profileDropdown.contains(event.target) && event.target !== profileButton) {
+                    profileDropdown.style.display = "none";
+                }
+            });
+
+            // Profile dropdown items functionality
+            const profileItems = document.querySelectorAll(".profile-dropdown-item");
+
+            profileItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    if (this.textContent === "Profile") {
+                        // Redirect to profile page
+                        window.location.href = "/profile/";
+                    } else if (this.textContent === "Logout") {
+                        // Logout functionality
+                        fetch("/logout/", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Failed to logout");
+                                }
+                                // Redirect to login page
+                                window.location.href = "/login/";
+                            })
+                            .catch(error => {
+                                console.error("Error logging out:", error.message);
+                            });
+                    }
+                });
+            });
+
+            // Function to reload the last selected contact
+            function reloadLastSelectedContact() {
+                const contacts = document.getElementsByClassName("contact");
+                for (let i = 0; i < contacts.length; i++) {
+                    if (contacts[i].querySelector(".contact-name").textContent === lastSelectedContact) {
+                        contacts[i].click();
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
